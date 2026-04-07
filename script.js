@@ -1,0 +1,204 @@
+const images = {
+  bg: {
+    school: "assets/bg/school.jpg",
+    cafe: "assets/bg/cafe.jpg",
+    classroom: "assets/bg/classroom.jpg"
+  },
+  characters: {
+    hyejin: "assets/characters/hyejin.png",
+    sun: "assets/characters/sun.png",
+    minki: "assets/characters/minki.png"
+  }
+};
+
+let index = 0;
+
+let affection = {
+  hyejin: 0,
+  sun: 0,
+  minki: 0,
+  study: 0
+};
+
+const story = [
+  {
+    name: "나",
+    text: "여기가... 로스쿨인가.",
+    bg: "school"
+  },
+  {
+    name: "박혜진",
+    text: "안녕하세요! 😊",
+    bg: "school",
+    characters: { center: "hyejin" },
+    effect: { hyejin: +1 }
+  },
+  {
+    name: "장선",
+    text: "…길도 못 찾고 서 있는 거야?",
+    characters: { left: "sun", right: "hyejin" },
+    effect: { sun: +1 }
+  },
+  {
+    name: "차민기",
+    text: "…재밌네.",
+    bg: "classroom",
+    characters: { center: "minki" },
+    effect: { minki: +1 }
+  },
+  {
+    name: "나",
+    text: "점심시간, 누구와 보낼까?",
+    choices: [
+      { text: "혜진이랑 밥", next: 5, effect: { hyejin: +2 } },
+      { text: "장선이랑 밥", next: 8, effect: { sun: +2 } },
+      { text: "혼자 공부", next: 11, effect: { study: +2 } }
+    ]
+  },
+
+  // 혜진
+  {
+    name: "박혜진",
+    text: "같이 먹으니까 좋네요 😊",
+    bg: "cafe",
+    characters: { center: "hyejin" }
+  },
+  {
+    name: "나",
+    text: "왜 로스쿨 왔어?",
+    choices: [
+      { text: "진지하게 듣는다", next: 7, effect: { hyejin: +2 } },
+      { text: "대충 넘긴다", next: 7, effect: { hyejin: -1 } }
+    ]
+  },
+  {
+    name: "박혜진",
+    text: "들어줘서 고마워요 😊",
+    next: "exam"
+  },
+
+  // 장선
+  {
+    name: "장선",
+    text: "…왜 따라온 거야.",
+    bg: "cafe",
+    characters: { center: "sun" }
+  },
+  {
+    name: "나",
+    text: "같이 먹고 싶어서",
+    choices: [
+      { text: "솔직하게 말한다", next: 10, effect: { sun: +2 } },
+      { text: "장난친다", next: 10, effect: { sun: -1 } }
+    ]
+  },
+  {
+    name: "장선",
+    text: "…바보냐.",
+    next: "exam"
+  },
+
+  // 공부
+  {
+    name: "나",
+    text: "혼자 공부를 시작했다.",
+    effect: { study: +3 }
+  },
+  {
+    name: "나",
+    text: "꽤 집중이 잘 된다.",
+    next: "exam"
+  }
+];
+
+function applyEffect(effect) {
+  for (let key in effect) {
+    affection[key] += effect[key];
+  }
+}
+
+function render() {
+  const current = story[index];
+
+  if (current.effect) applyEffect(current.effect);
+
+  if (current.bg) {
+    document.getElementById("background").style.background =
+      `url(${images.bg[current.bg]}) center/cover`;
+  }
+
+  ["left", "center", "right"].forEach(pos => {
+    document.getElementById(`char-${pos}`).src = "";
+  });
+
+  if (current.characters) {
+    for (let pos in current.characters) {
+      document.getElementById(`char-${pos}`).src =
+        images.characters[current.characters[pos]];
+    }
+  }
+
+  document.getElementById("name").innerText = current.name;
+  document.getElementById("text").innerText = current.text;
+
+  const choicesDiv = document.getElementById("choices");
+  choicesDiv.innerHTML = "";
+
+  if (current.choices) {
+    current.choices.forEach(choice => {
+      const btn = document.createElement("button");
+      btn.innerText = choice.text;
+      btn.onclick = () => {
+        if (choice.effect) applyEffect(choice.effect);
+        index = choice.next;
+        render();
+      };
+      choicesDiv.appendChild(btn);
+    });
+    return;
+  }
+
+  if (current.next === "exam") {
+    showExam();
+    return;
+  }
+}
+
+function showExam() {
+  const { study } = affection;
+
+  let result = study >= 5 ? "🎉 시험 대성공!" :
+               study >= 2 ? "🙂 무난한 성적." :
+               "💀 시험 망함...";
+
+  document.getElementById("name").innerText = "시험 결과";
+  document.getElementById("text").innerText = result;
+
+  document.getElementById("choices").innerHTML =
+    "<button onclick='showEnding()'>엔딩 보기</button>";
+}
+
+function showEnding() {
+  const { hyejin, sun, minki, study } = affection;
+
+  let ending =
+    minki >= 3 && study >= 4 ? "🔒 차민기 진엔딩" :
+    hyejin >= sun ? "💖 박혜진 엔딩" :
+    "🔥 장선 엔딩";
+
+  document.getElementById("name").innerText = "엔딩";
+  document.getElementById("text").innerText =
+    ending + `\n(혜진:${hyejin}, 장선:${sun}, 민기:${minki}, 공부:${study})`;
+
+  document.getElementById("choices").innerHTML =
+    "<button onclick='location.reload()'>다시하기</button>";
+}
+
+document.getElementById("dialogue-box").onclick = () => {
+  if (!story[index].choices && story[index].next !== "exam") {
+    index++;
+    if (index < story.length) render();
+  }
+};
+
+render();
