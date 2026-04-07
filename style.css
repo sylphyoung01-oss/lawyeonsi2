@@ -1,3 +1,14 @@
+/* style.css 상단에 추가 */
+#game {
+  background-color: #1a1a1a; /* 배경을 검정색으로 강제 지정 */
+  border: 5px solid gold;    /* 테두리를 그려서 영역 확인 */
+}
+
+#dialogue-box {
+  min-height: 150px;         /* 대화창 최소 높이 지정 */
+  background: rgba(0,0,0,0.9) !important; /* 배경색 강제 적용 */
+}
+
 body { margin:0; }
 
 #game {
