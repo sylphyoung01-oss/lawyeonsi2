@@ -30,3 +30,31 @@ body { margin:0; }
   color:white;
   padding:20px;
 }
+
+/* 선택지 버튼 스타일 */
+#choices {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.choice-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid white;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: 0.3s;
+}
+
+.choice-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+  color: #ffeb3b;
+}
+
+/* 캐릭터가 너무 작게 보일 때를 대비 */
+.character {
+  display: none; /* 이미지가 들어오기 전까지는 숨김 */
+}
