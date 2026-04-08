@@ -24,9 +24,12 @@ body { margin:0; }
 }
 
 .character {
-  position:absolute;
-  bottom:0;
-  height:80%;
+  position: absolute;
+  bottom: 100px; /* 대화창 높이만큼 띄우기 */
+  height: 70%;   /* 화면 높이의 70% 정도로 설정 */
+  z-index: 5;
+  /* 이미지가 없을 때 엑스박스 뜨는 걸 방지 */
+  object-fit: contain; 
 }
 
 #char-left { left:5%; }
