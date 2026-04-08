@@ -117,10 +117,30 @@ function render() {
     "차민기": "minki"
   };
 
-  if (!current.characters && charMap[current.name]) {
-    document.getElementById("char-center").src =
-      images.characters[charMap[current.name]];
+// 캐릭터 초기화
+["left", "center", "right"].forEach(pos => {
+  document.getElementById(`char-${pos}`).src = "";
+});
+
+// 캐릭터 매핑
+const charMap = {
+  "박혜진": "hyejin",
+  "장선": "sun",
+  "차민기": "minki"
+};
+
+// 👉 characters 지정된 경우
+if (current.characters) {
+  for (let pos in current.characters) {
+    document.getElementById(`char-${pos}`).src =
+      images.characters[current.characters[pos]];
   }
+} 
+// 👉 없으면 말하는 캐릭터 자동 출력
+else if (charMap[current.name]) {
+  document.getElementById("char-center").src =
+    images.characters[charMap[current.name]];
+}
 
   if (current.characters) {
     for (let pos in current.characters) {
