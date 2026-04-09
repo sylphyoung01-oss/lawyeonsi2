@@ -70,58 +70,62 @@ const story = [
   { name: "나", text: "드디어 시험이다.", next: "exam" }
 ];
 
-// 4. 효과 적용 함수
+// 4. 효과 적용
 function applyEffect(effect) {
+  if (!effect) return;
   for (let key in effect) {
     affection[key] += effect[key];
   }
 }
 
-// 5. 핵심 렌더링 함수 (인물 표시 로직 포함)
+// 5. 렌더링
 function render() {
   const current = story[index];
 
   if (current.effect) applyEffect(current.effect);
 
-  // 배경 이미지 출력
+  // 🔥 배경 강제 적용 (핵심 수정)
   if (current.bg && images.bg[current.bg]) {
-    document.getElementById("background").style.backgroundImage = `url(${images.bg[current.bg]})`;
-    document.getElementById("background").style.backgroundSize = "cover";
-    document.getElementById("background").style.backgroundPosition = "center";
+    const bgDiv = document.getElementById("background");
+
+    bgDiv.style.backgroundImage = `url('${images.bg[current.bg]}')`;
+    bgDiv.style.backgroundSize = "cover";
+    bgDiv.style.backgroundPosition = "center";
+    bgDiv.style.backgroundRepeat = "no-repeat";
   }
 
-  // 캐릭터 초기화 (모두 숨김)
+  // 🔥 캐릭터 완전 초기화 (핵심 수정)
   ["left", "center", "right"].forEach(pos => {
     const el = document.getElementById(`char-${pos}`);
     el.src = "";
     el.style.display = "none";
   });
 
-  // 캐릭터 출력 로직
-  const charMap = { "박혜진": "hyejin", "장선": "sun", "차민기": "minki" };
+  const charMap = {
+    "박혜진": "hyejin",
+    "장선": "sun",
+    "차민기": "minki"
+  };
 
+  // 🔥 캐릭터 출력
   if (current.characters) {
-    // 특정 위치에 캐릭터 지정이 있는 경우
     for (let pos in current.characters) {
-      const charKey = current.characters[pos];
+      const key = current.characters[pos];
       const el = document.getElementById(`char-${pos}`);
-      if (images.characters[charKey]) {
-        el.src = images.characters[charKey];
-        el.style.display = "block";
-      }
+
+      el.src = images.characters[key];
+      el.style.display = "block";
     }
   } else if (charMap[current.name]) {
-    // 이름에 따라 자동으로 가운데 출력
     const el = document.getElementById("char-center");
+
     el.src = images.characters[charMap[current.name]];
     el.style.display = "block";
   }
 
-  // 텍스트 및 이름 출력
   document.getElementById("name").innerText = current.name;
   document.getElementById("text").innerText = current.text;
 
-  // 선택지 처리
   const choicesDiv = document.getElementById("choices");
   choicesDiv.innerHTML = "";
 
@@ -130,7 +134,7 @@ function render() {
       const btn = document.createElement("button");
       btn.innerText = choice.text;
       btn.onclick = (e) => {
-        e.stopPropagation(); // 대화창 클릭 이벤트 전파 방지
+        e.stopPropagation();
         if (choice.effect) applyEffect(choice.effect);
         index = choice.next;
         render();
@@ -140,14 +144,13 @@ function render() {
     return;
   }
 
-  // 시험 이벤트 체크
   if (current.next === "exam") {
     showExam();
     return;
   }
 }
 
-// 6. 시험 결과 화면
+// 6. 시험
 function showExam() {
   const { study } = affection;
   let result = study >= 6 ? "🎉 시험 대성공!" : study >= 3 ? "🙂 무난한 성적." : "💀 시험 망함...";
@@ -155,12 +158,13 @@ function showExam() {
   document.getElementById("name").innerText = "시험 결과";
   document.getElementById("text").innerText = result;
   document.getElementById("choices").innerHTML = "<button onclick='showEnding()'>엔딩 보기</button>";
-  
-  // 시험 화면에서는 인물 숨김
-  ["left", "center", "right"].forEach(pos => document.getElementById(`char-${pos}`).style.display = "none");
+
+  ["left", "center", "right"].forEach(pos =>
+    document.getElementById(`char-${pos}`).style.display = "none"
+  );
 }
 
-// 7. 엔딩 화면 (엔딩 인물 표시)
+// 7. 엔딩
 function showEnding() {
   const { hyejin, sun, minki, study } = affection;
   let ending = "";
@@ -182,19 +186,20 @@ function showEnding() {
   }
 
   document.getElementById("name").innerText = "엔딩";
-  document.getElementById("text").innerText = ending + `\n(혜진:${hyejin}, 장선:${sun}, 민기:${minki}, 공부:${study})`;
+  document.getElementById("text").innerText =
+    ending + `\n(혜진:${hyejin}, 장선:${sun}, 민기:${minki}, 공부:${study})`;
 
-  // 엔딩 인물 출력
   if (endingChar) {
     const el = document.getElementById("char-center");
     el.src = images.characters[endingChar];
     el.style.display = "block";
   }
 
-  document.getElementById("choices").innerHTML = "<button onclick='location.reload()'>다시하기</button>";
+  document.getElementById("choices").innerHTML =
+    "<button onclick='location.reload()'>다시하기</button>";
 }
 
-// 8. 클릭 이벤트 및 초기 실행
+// 8. 클릭 이벤트
 document.getElementById("dialogue-box").onclick = () => {
   if (index < story.length - 1 && !story[index].choices && story[index].next !== "exam") {
     index++;
