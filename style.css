@@ -1,212 +1,66 @@
-// 1. 이미지 경로 설정 (파일 경로와 대소문자가 일치해야 합니다)
-const images = {
-  bg: {
-    school: "assets/bg/school.jpg",
-    cafe: "assets/bg/cafe.jpg",
-    classroom: "assets/bg/classroom.jpg"
-  },
-  characters: {
-    hyejin: "assets/characters/hyejin.png",
-    sun: "assets/characters/sun.png",
-    minki: "assets/characters/minki.png"
-  }
-};
-
-// 2. 게임 상태 관리
-let index = 0;
-let affection = {
-  hyejin: 0,
-  sun: 0,
-  minki: 0,
-  study: 0
-};
-
-// 3. 스토리 데이터
-const story = [
-  { name: "나", text: "여기가... 로스쿨인가.", bg: "school" },
-  { name: "박혜진", text: "안녕하세요! 😊", characters: { center: "hyejin" }, effect: { hyejin: 1 } },
-  { name: "장선", text: "…길도 못 찾고 서 있는 거야?", characters: { left: "sun", right: "hyejin" }, effect: { sun: 1 } },
-  { name: "차민기", text: "…재밌네.", bg: "classroom", characters: { center: "minki" }, effect: { minki: 1 } },
-  { name: "나", text: "첫 수업이 시작됐다.", bg: "classroom" },
-  {
-    name: "나",
-    text: "집중할까?",
-    choices: [
-      { text: "열심히 듣는다", next: 6, effect: { study: 2 } },
-      { text: "딴짓한다", next: 7, effect: { study: -1 } }
-    ]
-  },
-  { name: "나", text: "교수님 설명이 이해된다." },
-  { name: "나", text: "시간만 날린 느낌이다…" },
-  {
-    name: "나",
-    text: "점심시간, 누구와 보낼까?",
-    choices: [
-      { text: "혜진이랑 밥", next: 9, effect: { hyejin: 2 } },
-      { text: "장선이랑 밥", next: 12, effect: { sun: 2 } },
-      { text: "혼자 공부", next: 15, effect: { study: 2 } }
-    ]
-  },
-  { name: "박혜진", text: "같이 먹으니까 좋네요 😊", bg: "cafe", characters: { center: "hyejin" } },
-  { name: "나", text: "혜진은 참 따뜻하다." },
-  { name: "박혜진", text: "앞으로도 같이 있어줄래요?" },
-  { name: "장선", text: "…왜 따라온 거야.", bg: "cafe", characters: { center: "sun" } },
-  { name: "나", text: "장선이랑 있으면 긴장된다." },
-  { name: "장선", text: "…그래도 나쁘진 않네.", characters: { center: "sun" } },
-  { name: "나", text: "혼자 공부를 시작했다.", effect: { study: 2 } },
-  { name: "나", text: "꽤 집중이 잘 된다." },
-  { name: "나", text: "모의재판 준비가 시작됐다.", bg: "classroom" },
-  {
-    name: "나",
-    text: "어떻게 준비할까?",
-    choices: [
-      { text: "자료조사", next: 20, effect: { study: 3 } },
-      { text: "팀워크", next: 21, effect: { hyejin: 1, sun: 1 } }
-    ]
-  },
-  { name: "나", text: "논리가 탄탄해졌다." },
-  { name: "나", text: "팀워크가 좋아졌다." },
-  { name: "차민기", text: "…너 꽤 재밌네.", characters: { center: "minki" }, effect: { minki: 2 } },
-  { name: "나", text: "드디어 시험이다.", next: "exam" }
-];
-
-// 4. 시스템 함수 (효과 적용 및 실시간 수치 업데이트)
-function applyEffect(effect) {
-  if (!effect) return;
-  for (let key in effect) {
-    affection[key] += effect[key];
-  }
-  updateStatus(); // 화면 상단 바 업데이트
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: sans-serif;
 }
 
-function updateStatus() {
-  // HTML의 각 ID에 맞는 위치에 숫자 삽입
-  if(document.getElementById("stat-hyejin")) {
-    document.getElementById("stat-hyejin").innerText = affection.hyejin;
-    document.getElementById("stat-sun").innerText = affection.sun;
-    document.getElementById("stat-minki").innerText = affection.minki;
-    document.getElementById("stat-study").innerText = affection.study;
-  }
+#game {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
 }
 
-// 5. 화면 렌더링 함수
-function render() {
-  const current = story[index];
-
-  // 효과가 있다면 적용
-  if (current.effect) applyEffect(current.effect);
-
-  // 배경 업데이트
-  if (current.bg && images.bg[current.bg]) {
-    document.getElementById("background").style.backgroundImage = `url(${images.bg[current.bg]})`;
-  }
-
-  // 캐릭터 초기화 및 출력
-  ["left", "center", "right"].forEach(pos => {
-    const el = document.getElementById(`char-${pos}`);
-    el.style.display = "none";
-  });
-
-  const charMap = { "박혜진": "hyejin", "장선": "sun", "차민기": "minki" };
-
-  if (current.characters) {
-    for (let pos in current.characters) {
-      const el = document.getElementById(`char-${pos}`);
-      el.src = images.characters[current.characters[pos]];
-      el.style.display = "block";
-    }
-  } else if (charMap[current.name]) {
-    const el = document.getElementById("char-center");
-    el.src = images.characters[charMap[current.name]];
-    el.style.display = "block";
-  }
-
-  // 대사 출력
-  document.getElementById("name").innerText = current.name;
-  document.getElementById("text").innerText = current.text;
-
-  // 선택지 출력
-  const choicesDiv = document.getElementById("choices");
-  choicesDiv.innerHTML = "";
-
-  if (current.choices) {
-    current.choices.forEach(choice => {
-      const btn = document.createElement("button");
-      btn.innerText = choice.text;
-      btn.className = "choice-btn"; 
-      btn.onclick = (e) => {
-        e.stopPropagation(); 
-        applyEffect(choice.effect);
-        index = choice.next;
-        render();
-      };
-      choicesDiv.appendChild(btn);
-    });
-    return;
-  }
-
-  if (current.next === "exam") {
-    showExam();
-    return;
-  }
+/* 🖼 배경 */
+#background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
 }
 
-// 6. 시험 결과 및 엔딩 로직
-function showExam() {
-  const { study } = affection;
-  let result = study >= 6 ? "🎉 시험 대성공! 교수님의 총애를 받습니다." : 
-               study >= 3 ? "🙂 무난한 성적입니다. 유급은 면했네요." : 
-               "💀 시험 망함... 재수강의 늪에 빠졌습니다.";
-
-  document.getElementById("name").innerText = "시험 결과";
-  document.getElementById("text").innerText = result;
-  document.getElementById("choices").innerHTML = "<button class='choice-btn' onclick='showEnding()'>엔딩 보기</button>";
-  
-  ["left", "center", "right"].forEach(pos => document.getElementById(`char-${pos}`).style.display = "none");
+/* 🎭 캐릭터 */
+.character {
+  position: absolute;
+  bottom: 0;
+  height: 55%;   /* 🔥 크기 줄임 (핵심) */
+  z-index: 2;
+  transition: 0.3s;
 }
 
-function showEnding() {
-  const { hyejin, sun, minki, study } = affection;
-  let ending = "";
-  let endingChar = "";
+/* 위치 */
+#char-left { left: 10%; }
+#char-center { left: 35%; }
+#char-right { right: 10%; }
 
-  if (minki >= 4 && study >= 5) {
-    ending = "🔒 차민기 진엔딩: 함께 법정을 누비는 파트너";
-    endingChar = "minki";
-  } else if (hyejin >= 4) {
-    ending = "💖 박혜진 해피엔딩: 따뜻한 봄날의 로스쿨 연인";
-    endingChar = "hyejin";
-  } else if (sun >= 4) {
-    ending = "🔥 장선 츤데레 엔딩: '공부나 해'라고 말하지만 손은 잡고 있음";
-    endingChar = "sun";
-  } else if (study >= 6) {
-    ending = "📚 공부 올인 엔딩: 사랑은 사치다. 나는 판사로 간다.";
-  } else {
-    ending = "😢 평범한 로스쿨 엔딩: 졸업사진 속 당신은 혼자입니다.";
-  }
-
-  document.getElementById("name").innerText = "엔딩";
-  document.getElementById("text").innerText = ending + `\n(혜진:${hyejin}, 장선:${sun}, 민기:${minki}, 공부:${study})`;
-
-  if (endingChar) {
-    const el = document.getElementById("char-center");
-    el.src = images.characters[endingChar];
-    el.style.display = "block";
-  }
-
-  document.getElementById("choices").innerHTML = "<button class='choice-btn' onclick='location.reload()'>다시하기</button>";
+/* 💬 대화창 */
+#dialogue-box {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 20px;
+  z-index: 3;
 }
 
-// 7. 클릭 이벤트 설정
-document.getElementById("dialogue-box").onclick = () => {
-  if (index < story.length - 1 && !story[index].choices && story[index].next !== "exam") {
-    index++;
-    render();
-  }
-};
+/* 이름 */
+#name {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
 
-// 시작
-window.onload = () => {
-  updateStatus(); // 스태터스 바 초기화
-  render();
-};
+/* 선택지 버튼 */
+.choice-btn {
+  display: block;
+  margin-top: 10px;
+  padding: 10px;
+  background: white;
+  border: none;
+  cursor: pointer;
+}
+
+.choice-btn:hover {
+  background: #ddd;
+}
