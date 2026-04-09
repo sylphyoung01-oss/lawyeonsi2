@@ -208,3 +208,21 @@ document.getElementById("dialogue-box").onclick = () => {
 };
 
 window.onload = render;
+
+// ⌨️ 키보드 입력으로 진행
+document.addEventListener("keydown", (e) => {
+  // Enter 또는 Space
+  if (e.key === "Enter" || e.code === "Space") {
+
+    // 선택지 있을 때는 무시
+    if (story[index].choices) return;
+
+    // 시험 이벤트도 막기
+    if (story[index].next === "exam") return;
+
+    if (index < story.length - 1) {
+      index++;
+      render();
+    }
+  }
+});
