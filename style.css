@@ -26,14 +26,15 @@ body {
 .character {
   position: absolute;
   bottom: 0;
-  height: 50%;   /* 🔥 더 줄임 */
+  height: 35%;
   z-index: 2;
+  transition: 0.3s;
 }
 
 /* 위치 */
-#char-left { left: 10%; }
-#char-center { left: 35%; }
-#char-right { right: 10%; }
+#char-left { left: 5%; }
+#char-center { left: 33%; }
+#char-right { right: 5%; }
 
 /* 💬 대화창 */
 #dialogue-box {
